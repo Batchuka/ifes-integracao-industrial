@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+
+<html>
+
+    <header>
+
+        <title>Protótipo Smart House</title>
+
+        <script src="funcoes_v2.js"></script>
+
+        <link rel="stylesheet" href="ihm_layout.css">
+
+        <meta charset="utf-8"/>
+
+    </header>
+
+    <body onload="carregar_datapoints()" style="background-color: gainsboro;">
+    
+        <div style="text-align: center;">
+
+            <h1 style="font-size: 70px;">Sistema Smart House</h1>
+
+        </div>
+        
+        <div style="display: flex;">
+            
+            <div class="container">
+                
+                <span class="icon">🌡️</span>
+                
+                <div class="variable">
+                    Temperatura: &nbsp; <span id="temperatura"> -- ºC</span>
+                </div>
+                
+                <h1><p id="status_ventilador">Desligado</p></h1>
+                
+                <img id="ventilador" src="imagens/VentiladorOff.png" style="width: 200px;" />
+    
+            </div>
+    
+            <div class="container">
+
+                <span class="icon">💡</span>       
+
+                    <div class="variable">
+                        Luminosidade: &nbsp; <span id="luminosidade">-- %</span>
+                    </div>
+                    
+                    <h1><p id="status_lampadas">Desligadas</p></h1>
+                    
+                    <img id="lampada" src="imagens/LampadaOff.gif" style="height: 250px;" />
+
+            </div>
+
+            <div class="container">
+                
+                <div class="icon">💧</div>
+
+                <div class="variable">
+                    Umidade: &nbsp; <span id="umidade">--%</span>
+                </div>
+
+                <h1><p id="alarme_status">Desligado</p></h1>
+                    
+                <img id="alarme" src="imagens/alarme_off.png" style="width: 200px;" />
+
+            </div>
+    
+        </div>
+
+    </body>
+
+</html>
