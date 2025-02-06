@@ -1,43 +1,7 @@
-"""
-    Instalação
-        
-        pip install fastapi
-        pip install uvicorn
-    
-    Execução
-
-        uvicorn caminho_arquivo_python:app --reload
-"""
-import uvicorn
-
-from fastapi import FastAPI
+from fastapi import APIRouter
 from typing import Optional
-from pydantic import BaseModel
 
-class Produto(BaseModel):
-    id: int
-    nome: str
-    preco: float
-
-class UpdateProduto(BaseModel):
-    nome: Optional[str] = None
-    preco: Optional[float] = None
-
-
-app = FastAPI()
-
-lista_produtos = [
-    {
-        'id': 1,
-        'nome': 'Café',
-        'preco': 16.5
-    },
-    {
-        'id': 2,
-        'nome': 'Arroz',
-        'preco': 7.20
-    }
-]
+router = APIRouter()
 
 @app.get('/')
 def ola_mundo():
@@ -115,7 +79,3 @@ def remover_produto(id_produto: int):
         'Mensagem': 'Produto Removido com Sucesso!'
     }
 
-
-if __name__ == '__main__':
-    
-    uvicorn.run('crud_service:app', port=5000, log_level='info', reload=True)
