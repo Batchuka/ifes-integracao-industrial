@@ -1,22 +1,22 @@
 import time
+from threading import Thread
 from datetime import datetime
 from pyModbusTCP.client import ModbusClient
-from threading import Thread
 
 class ClienteModbus:
     
     def __init__(self, host_ip: str, porta: int, datapoints: dict, tempo_atualizacao: int):        
-        self.cliente = ModbusClient(host=host_ip, port=porta)        
+        self.cliente : ModbusClient = ModbusClient(host=host_ip, port=porta)        
         self.tempo_atualizacao = tempo_atualizacao        
         self.datapoints = datapoints
         self._lista_threads = []
     
     def conectar(self):
-        if not self.cliente.is_open():
+        if not self.cliente.is_open:
             self.cliente.open()
     
     def desconectar(self):
-        if self.cliente.is_open():
+        if self.cliente.is_open:
             self.cliente.close()
     
     def obter_variaveis(self):
@@ -57,6 +57,7 @@ class ClienteModbus:
         
         for thread in self._lista_threads:            
             thread.start()
+            thread.join()
 
 # Teste local
 if __name__ == '__main__':

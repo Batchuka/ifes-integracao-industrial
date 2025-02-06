@@ -4,14 +4,13 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
-
         {
-            "name": "Web Service Main",
+            "name": "Main Web Service",
             "type": "debugpy",
             "request": "launch",
             "program": "web_service/__main__.py",
             "console": "integratedTerminal"
-        },        
+        },
         {
             "name": "Modbus Client",
             "type": "debugpy",
@@ -19,7 +18,6 @@
             "program": "web_service/modbus_client.py",
             "console": "integratedTerminal"
         },
-
         {
             "name": "Web Service Uvicorn",
             "type": "debugpy",
