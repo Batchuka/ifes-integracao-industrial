@@ -1,16 +1,15 @@
 [tool.poetry]
-name = "ifes-web-service"
+name = "ihm-streamlit"
 version = "0.1.0"
 description = ""
 authors = ["Matheus C. Delfino"]
+packages = [{ include = "ihm_streamlit" }]
 
 [tool.poetry.dependencies]
 python = "^3.11"
-fastapi = "0.115.6"
-uvicorn = "0.34.0"
 requests = "^2.32.3"
-pymodbustcp = "^0.3.0"
-sqlalchemy = "^2.0.37"
+streamlit = "^1.42.0"
+
 
 [build-system]
 requires = ["poetry-core"]
