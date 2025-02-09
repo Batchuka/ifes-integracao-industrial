@@ -36,9 +36,9 @@ Este projeto simula o controle de uma coqueria siderúrgica, garantindo que o fo
 3. Se o fluxo de gases inertes cair abaixo de 18.000 m³/h, ativar um alarme e aumentar a injeção de gás para evitar combustão indesejada.
 4. Se a velocidade do blower cair abaixo de 5000 RPM, verificar a integridade dos filtros de poeira para evitar obstruções no sistema.
 6. Se o nível de coque na câmara de extinção estiver em:
-      Nível 1 (Baixo)   → Nenhum blower é ativado
-      Nível 2 (Médio)   → Ativar 1 blower para remoção de poeira
-      Nível 3 (Alto)   → Ativar 2 blowers para garantir limpeza eficiente
+      <br> - Nível 1 (Baixo)   → Nenhum blower é ativado
+      <br> - Nível 2 (Médio)   → Ativar 1 blower para remoção de poeira
+      <br> - Nível 3 (Alto)   → Ativar 2 blowers para garantir limpeza eficiente
 
 ## Entrega
 Os seguintes artefatos serão entregues:
