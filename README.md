@@ -30,11 +30,11 @@ Este projeto simula o controle de uma coqueria siderúrgica, garantindo que o fo
 5. Temperatura do Coque Resfriado (°C) – Mede a temperatura do coque ao sair do processo.
 
 ## Regras de Automação
-1. Se a temperatura da câmara de resfriamento exceder 1100°C, aumentar o fluxo de gases inertes para evitar superaquecimento.
-2. Se a pressão do vapor ultrapassar 20 bar, aumentar o nível de água de recirculação na caldeira para dissipar mais calor e evitar sobrepressão.
-3. Se a temperatura do coque resfriado estiver acima de 250°C, aumentar a velocidade do blower para garantir resfriamento adequado.
-4. Se o fluxo de gases inertes cair abaixo de 50 m³/h, ativar um alarme e aumentar a injeção de gás para evitar combustão indesejada.
-5. Se a velocidade do blower cair abaixo de 1000 RPM, verificar a integridade dos filtros de poeira para evitar obstruções no sistema.
+1. Se a temperatura da câmara de resfriamento exceder 1100°C, aumentar o fluxo de gases inertes para evitar superaquecimento;
+2. Se a pressão do vapor ultrapassar 20 bar, aumentar o nível de água de recirculação na caldeira para dissipar mais calor e evitar sobrepressão;
+3. Se a temperatura do coque resfriado estiver acima de 250°C, aumentar a velocidade do blower para garantir resfriamento adequado;
+4. Se o fluxo de gases inertes cair abaixo de 1800 m³/h, ativar um alarme e aumentar a injeção de gás para evitar combustão indesejada;
+5. Se a velocidade do blower cair abaixo de 1000 RPM, abrir um sinal para indicar obstrução dos filtros;
 
 ## Entrega
 Os seguintes artefatos serão entregues:
