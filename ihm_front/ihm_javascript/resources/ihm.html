@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Controle de CDQ</title>
-    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="styles.css">
   </head>
   <body>
     <svg id="meuSVG" viewBox="0 0 1080 720" preserveAspectRatio="xMidYMid meet">
@@ -208,25 +208,25 @@
         </g>
       </g>
     </svg>
-    
-
-    <button onclick="alterarCor('pump1')">Mudar Cor 1</button>
-    <button onclick="alterarCor('pump2')">Mudar Cor 2</button>
 
     <div class="graficos">
+      
       <div class="grafico grafico1">
-        <h3>Indicador 1</h3>
-        <img id="grafico1" src="" alt="Indicador 1" />
+          <h3>Indicador 1</h3>
+          <canvas id="grafico1"></canvas> <!-- Substitui <img> por <canvas> -->
       </div>
-    
+  
       <div class="grafico grafico2">
-        <h3>Indicador 2</h3>
-        <img id="grafico2" src="" alt="Indicador 2" />
+          <h3>Histórico da Variável</h3>
+          <canvas id="grafico2"></canvas> <!-- Substitui <img> por <canvas> -->
       </div>
-    </div>
+  </div>
 
-
+    <!-- parte de scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="scripts.js"></script>
+
+    <button id="toggleMode">Modo: Mock</button> <!-- Botão para alternar entre Mock e API -->
 
   </body>
 
