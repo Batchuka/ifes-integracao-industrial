@@ -27,14 +27,14 @@ Este projeto simula o controle de uma coqueria siderúrgica, garantindo que o fo
 2. Pressão do Vapor Gerado (bar) – Mede a pressão do vapor na caldeira.
 3. Fluxo de Gases Inertes (m³/h) – Controla a circulação de gases para evitar oxidação.
 4. Velocidade do Blower (RPM) – Regula a circulação dos gases na câmara de resfriamento.
-5. Temperatura do Coque Resfriado (°C) – Mede a temperatura do coque ao sair do processo.
+5. Nível de Coque (Nível) – Mede a quantidade de coque carregado na Câmara de Resfriamento.
 
 ## Regras de Automação
-1. Se a temperatura da câmara de resfriamento exceder 1100°C, aumentar o fluxo de gases inertes para evitar superaquecimento;
-2. Se a pressão do vapor ultrapassar 20 bar, aumentar o nível de água de recirculação na caldeira para dissipar mais calor e evitar sobrepressão;
-3. Se a temperatura do coque resfriado estiver acima de 250°C, aumentar a velocidade do blower para garantir resfriamento adequado;
-4. Se o fluxo de gases inertes cair abaixo de 1800 m³/h, ativar um alarme e aumentar a injeção de gás para evitar combustão indesejada;
-5. Se a velocidade do blower cair abaixo de 1000 RPM, abrir um sinal para indicar obstrução dos filtros;
+1. Se a temperatura da câmara de resfriamento exceder 1100°C, aumentar o fluxo de gases inertes para evitar superaquecimento.
+2. Se a pressão do vapor ultrapassar 20 bar, aumentar o nível de água de recirculação na caldeira para dissipar mais calor e evitar sobrepressão.
+3. Se o fluxo de gases inertes cair abaixo de 1800 m³/h, ativar um alarme e aumentar a injeção de gás para evitar combustão indesejada.
+4. Se a velocidade do blower cair abaixo de 1000 RPM, abrir um sinal para indicar obstrução dos filtros.
+5. Medir 3 níveis: (1) baixo, não ligar blower; (2) médio, ligar um blower; (3) alto, ligar dois blowers.
 
 ## Entrega
 Os seguintes artefatos serão entregues:
