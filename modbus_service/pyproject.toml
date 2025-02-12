@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "ifes-modbus-service"
+name = "modbus_service"
 version = "0.1.0"
 description = ""
 authors = ["Matheus C. Delfino"]

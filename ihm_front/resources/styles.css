@@ -12,12 +12,12 @@ body {
   overflow: hidden; /* Remove rolagem para manter tudo visível */
 }
 
-/* Estiliza o SVG */
 svg {
-  width: 90vw; /* Ajusta para ocupar 90% da largura da tela */
-  height: auto; /* Mantém a proporção do SVG */
-  max-width: 140000px; /* Define um tamanho máximo para telas grandes */
-  max-height: 80vh; /* Limita a altura ao máximo de 80% da tela */
+  width: 90vw;
+  height: auto;
+  max-width: 1200px;
+  max-height: 80vh;
+  display: block;
 }
 
 /* Ajusta o SVG para se adaptar melhor a diferentes resoluções */
@@ -58,13 +58,17 @@ button {
 @keyframes spin {
   from {
     transform: rotate(0deg);
+    transform-origin: center;
   }
   to {
     transform: rotate(360deg);
+    transform-origin: center;
   }
 }
 
 /* Classe que será ativada via JS */
 .ventilador-ativo {
   animation: spin 2s linear infinite;
+  transform-origin: center;
+  transform-box: fill-box;
 }

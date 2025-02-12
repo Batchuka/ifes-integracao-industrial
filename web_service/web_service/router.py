@@ -1,17 +1,18 @@
-from fastapi import APIRouter, Depends
-from sqlalchemy.orm import Session
+import os
+from fastapi import APIRouter, Depends, Header
 from web_service.database import BancoDeDados
 from web_service.modbus_client import ClienteModbus
 from web_service.models import *
 
+MODBUS_HOST = os.getenv("MODBUS_HOST", "localhost")
+
 router = APIRouter()
-client = ClienteModbus(host_ip='localhost', porta=502)
+client = ClienteModbus(host_ip=MODBUS_HOST, porta=502)
 client.run()
 banco = BancoDeDados()
 
 def get_db():
     return banco
-
 
 @router.get("/historico/temperatura_camara", response_model=list[TemperaturaCamaraResponse])
 def get_temperatura_camara(db: BancoDeDados = Depends(get_db)):
@@ -51,12 +52,7 @@ def get_fluxo_gases(db: BancoDeDados = Depends(get_db)):
         for a, b, c in zip(registros_a, registros_b, registros_c)
     ]
 
-# @router.get("/dados", response_model=list[DadosPlantaResponse])
-# def obter_dados(db=Depends(get_db)):
-#     cursor = db.cursor()  # Criando o cursor corretamente
-#     registros = cursor.execute("SELECT * FROM dados_planta ORDER BY timestamp DESC LIMIT 100").fetchall()
-
-#     return [
-#         DadosPlantaResponse(**dict(zip([column[0] for column in cursor.description], row)))
-#         for row in registros
-#     ]
+@router.put("/configuracao/oscilacao")
+def set_fator_oscilacao(fator: int = Header(...)):
+    sucesso = client.fator_oscilacao(fator)
+    return {"mensagem": "Oscilação atualizada", "sucesso": sucesso, "novo_valor": fator}

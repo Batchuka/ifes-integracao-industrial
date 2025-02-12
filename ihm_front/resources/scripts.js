@@ -1,6 +1,6 @@
 document.addEventListener("DOMContentLoaded", function () {
   const toggleButton = document.getElementById("toggleMode");
-  let modoDesenvolvimento = true; // Começa no modo Mock
+  let modoDesenvolvimento = true;
 
   function atualizarBotao() {
     toggleButton.innerText = `Modo: ${

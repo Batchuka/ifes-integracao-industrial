@@ -1,14 +1,17 @@
 import sqlite3
 import os
 from datetime import datetime, timedelta
+from threading import Lock
 
 class BancoDeDados:
     _instance = None
+    _lock = Lock()
 
     def __new__(cls, db_name="planta.db", recriar=False):
-        if cls._instance is None:
-            cls._instance = super(BancoDeDados, cls).__new__(cls)
-            cls._instance.init_db(db_name, recriar)
+        with cls._lock:
+            if cls._instance is None:
+                cls._instance = super(BancoDeDados, cls).__new__(cls)
+                cls._instance.init_db(db_name, recriar)
         return cls._instance
 
     def init_db(self, db_name, recriar):
@@ -22,35 +25,44 @@ class BancoDeDados:
         self.cursor = self.conn.cursor()
         self.criar_tabela()
     
+    def _nova_conexao(self):
+        return sqlite3.connect(self.db_name, check_same_thread=False)
+
     def criar_tabela(self):
-        self.cursor.execute('''
-            CREATE TABLE IF NOT EXISTS dados_planta (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
-                temperatura_camara INTEGER,
-                pressao_vapor INTEGER,
-                fluxo_gas_a INTEGER,
-                fluxo_gas_b INTEGER,
-                fluxo_gas_c INTEGER,
-                velocidade_blower INTEGER,
-                nivel_carga INTEGER,
-                alerta_blower BOOLEAN
-            )
-        ''')
-        self.conn.commit()
+        with self._nova_conexao() as conn:
+            cursor = conn.cursor()
+            cursor.execute('''
+                CREATE TABLE IF NOT EXISTS dados_planta (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+                    temperatura_camara INTEGER,
+                    pressao_vapor INTEGER,
+                    fluxo_gas_a INTEGER,
+                    fluxo_gas_b INTEGER,
+                    fluxo_gas_c INTEGER,
+                    velocidade_blower INTEGER,
+                    nivel_carga INTEGER,
+                    alerta_blower BOOLEAN
+                )
+            ''')
+            conn.commit()
     
     def inserir_dados(self, dados):
-        self.cursor.execute('''
-            INSERT INTO dados_planta (
-                temperatura_camara, pressao_vapor, fluxo_gas_a, fluxo_gas_b, fluxo_gas_c,
-                velocidade_blower, nivel_carga, alerta_blower
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)''', dados)
-        self.conn.commit()
+        with self._nova_conexao() as conn:
+            cursor = conn.cursor()
+            cursor.execute('''
+                INSERT INTO dados_planta (
+                    temperatura_camara, pressao_vapor, fluxo_gas_a, fluxo_gas_b, fluxo_gas_c,
+                    velocidade_blower, nivel_carga, alerta_blower
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)''', dados)
+            conn.commit()
     
     def limpar_registros_antigos(self):
         limite_tempo = datetime.now() - timedelta(minutes=60)
-        self.cursor.execute("DELETE FROM dados_planta WHERE timestamp < ?", (limite_tempo,))
-        self.conn.commit()
+        with self._nova_conexao() as conn:
+            cursor = conn.cursor()
+            cursor.execute("DELETE FROM dados_planta WHERE timestamp < ?", (limite_tempo,))
+            conn.commit()
 
     def obter_historico(self, coluna: str):
         query = f"""
@@ -65,16 +77,10 @@ class BancoDeDados:
             )
             ORDER BY timestamp ASC
         """
-        return self.cursor.execute(query).fetchall()
+        with self._nova_conexao() as conn:
+            cursor = conn.cursor()
+            return cursor.execute(query).fetchall()
 
     def fechar(self):
         self.conn.close()
 
-# # Teste rápido
-# if __name__ == "__main__":
-#     db = BancoDeDados()
-#     dados_mock = (1090, 20, 650, 620, 670, 1300, 1, False)  # Exemplo de dados
-#     db.inserir_dados(dados_mock)
-#     db.limpar_registros_antigos()
-#     db.fechar()
-#     print("Banco de dados atualizado!")

@@ -11,7 +11,8 @@ dict_datapoints = {
     1003: 'Fluxo de Gás B',
     1004: 'Fluxo de Gás C',
     1005: 'Velocidade do Blower',
-    1006: 'Nível de Carga'
+    1006: 'Nível de Carga',
+    1010: 'Fator Oscilação'
 }
 
 class ClienteModbus:
@@ -74,7 +75,7 @@ class ClienteModbus:
             
             time.sleep(self.tempo_atualizacao)
     
-    def inserir_variavel(self, endereco: int, valor: int):
+    def fator_oscilacao(self, valor: int, endereco: int = 1010):
         self.conectar()
         sucesso = self.cliente.write_single_register(endereco, valor)
         self.desconectar()
