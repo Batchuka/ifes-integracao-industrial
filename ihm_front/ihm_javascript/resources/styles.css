@@ -2,21 +2,37 @@ html,
 body {
   margin: 0;
   padding: 0;
-  height: 100%;
+  height: 100vh;
+  width: 100vw;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background-color: light-dark(
-    rgb(227, 242, 253),
-    rgb(227, 242, 253)
-  ); /* Azul Claro */
+  background-color: rgb(227, 242, 253);
+  overflow: hidden; /* Remove rolagem para manter tudo visível */
 }
 
 /* Estiliza o SVG */
 svg {
-  width: 60vw;
-  height: 60vh;
+  width: 90vw; /* Ajusta para ocupar 90% da largura da tela */
+  height: auto; /* Mantém a proporção do SVG */
+  max-width: 140000px; /* Define um tamanho máximo para telas grandes */
+  max-height: 80vh; /* Limita a altura ao máximo de 80% da tela */
+}
+
+/* Ajusta o SVG para se adaptar melhor a diferentes resoluções */
+@media (max-width: 1024px) {
+  svg {
+    width: 95vw; /* Para telas menores, o SVG ocupa mais espaço */
+    max-height: 85vh;
+  }
+}
+
+@media (max-width: 768px) {
+  svg {
+    width: 100vw;
+    max-height: 90vh;
+  }
 }
 
 /* Estiliza os botões */
@@ -37,35 +53,18 @@ button {
   border-radius: 5px;
 }
 
-/* Estiliza os gráficos */
-.graficos {
-  display: flex;
-  justify-content: space-around;
-  width: 100%;
-  margin-top: 10px;
+/* Estilos que permitem as imagens girar */
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
-/* Indicador 1 */
-.grafico1 {
-  position: absolute;
-  top: 200px;
-  left: 550px;
-  width: 100px;
-  height: 400px; /* Ajustando altura para ser próxima ao desenho */
-}
-
-/* Historico Variável */
-.grafico2 {
-  position: absolute;
-  top: 800px; /* Ajuste baseado no DevTools */
-  left: 1600px; /* Ajuste baseado no DevTools */
-  width: 400px;
-  height: 200px;
-}
-
-/* Ajuste para todos os gráficos */
-.grafico img {
-  width: 100%;
-  height: 100%;
-  border: 1px solid #1565c0;
+/* Classe que será ativada via JS */
+.ventilador-ativo {
+  animation: spin 2s linear infinite;
 }
