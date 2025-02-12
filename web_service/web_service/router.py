@@ -1,41 +1,62 @@
-from fastapi import FastAPI, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-from database import SessionLocal, criar_banco
-import models
-import schemas
+from web_service.database import BancoDeDados
+from web_service.modbus_client import ClienteModbus
+from web_service.models import *
 
-# Criando a aplicação FastAPI
-app = FastAPI(title="Modbus API", description="API para gerenciar DataSources, DataPoints e Registros")
+router = APIRouter()
+client = ClienteModbus(host_ip='localhost', porta=502)
+client.run()
+banco = BancoDeDados()
 
-# Função para obter a sessão do banco em cada requisição
 def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+    return banco
 
-# Criar o banco ao iniciar a aplicação (opcional, pode rodar `criar_banco()` separadamente)
-criar_banco()
 
-# Criar um novo DataSource
-@app.post("/datasources/", response_model=schemas.DataSource)
-def criar_datasource(datasource: schemas.DataSourceCreate, db: Session = Depends(get_db)):
-    db_datasource = models.DataSource(**datasource.dict())
-    db.add(db_datasource)
-    db.commit()
-    db.refresh(db_datasource)
-    return db_datasource
+@router.get("/historico/temperatura_camara", response_model=list[TemperaturaCamaraResponse])
+def get_temperatura_camara(db: BancoDeDados = Depends(get_db)):
+    registros = db.obter_historico("temperatura_camara")
+    return [TemperaturaCamaraResponse(temperatura_camara=row[0], timestamp=row[1]) for row in registros]
 
-# Listar todos os DataSources
-@app.get("/datasources/", response_model=list[schemas.DataSource])
-def listar_datasources(db: Session = Depends(get_db)):
-    return db.query(models.DataSource).all()
+@router.get("/historico/pressao_vapor", response_model=list[PressaoVaporResponse])
+def get_pressao_vapor(db: BancoDeDados = Depends(get_db)):
+    registros = db.obter_historico("pressao_vapor")
+    return [PressaoVaporResponse(pressao_vapor=row[0], timestamp=row[1]) for row in registros]
 
-# Obter um DataSource por ID
-@app.get("/datasources/{datasource_id}", response_model=schemas.DataSource)
-def obter_datasource(datasource_id: int, db: Session = Depends(get_db)):
-    datasource = db.query(models.DataSource).filter(models.DataSource.id == datasource_id).first()
-    if not datasource:
-        raise HTTPException(status_code=404, detail="DataSource não encontrado")
-    return datasource
+@router.get("/historico/velocidade_blower", response_model=list[VelocidadeBlowerResponse])
+def get_velocidade_blower(db: BancoDeDados = Depends(get_db)):
+    registros = db.obter_historico("velocidade_blower")
+    return [VelocidadeBlowerResponse(velocidade_blower=row[0], timestamp=row[1]) for row in registros]
+
+@router.get("/historico/nivel_carga", response_model=list[NivelCargaResponse])
+def get_nivel_carga(db: BancoDeDados = Depends(get_db)):
+    registros = db.obter_historico("nivel_carga")
+    return [NivelCargaResponse(nivel_carga=row[0], timestamp=row[1]) for row in registros]
+
+@router.get("/historico/alerta_blower", response_model=list[AlertaBlowerResponse])
+def get_alerta_blower(db: BancoDeDados = Depends(get_db)):
+    registros = db.obter_historico("alerta_blower")
+    return [AlertaBlowerResponse(alerta_blower=bool(row[0]), timestamp=row[1]) for row in registros]
+
+@router.get("/historico/fluxo_gases", response_model=list[FluxoGasesResponse])
+def get_fluxo_gases(db: BancoDeDados = Depends(get_db)):
+    registros_a = db.obter_historico("fluxo_gas_a")
+    registros_b = db.obter_historico("fluxo_gas_b")
+    registros_c = db.obter_historico("fluxo_gas_c")
+
+    return [
+        FluxoGasesResponse(
+            fluxo_gas_a=a[0], fluxo_gas_b=b[0], fluxo_gas_c=c[0], timestamp=a[1]
+        )
+        for a, b, c in zip(registros_a, registros_b, registros_c)
+    ]
+
+# @router.get("/dados", response_model=list[DadosPlantaResponse])
+# def obter_dados(db=Depends(get_db)):
+#     cursor = db.cursor()  # Criando o cursor corretamente
+#     registros = cursor.execute("SELECT * FROM dados_planta ORDER BY timestamp DESC LIMIT 100").fetchall()
+
+#     return [
+#         DadosPlantaResponse(**dict(zip([column[0] for column in cursor.description], row)))
+#         for row in registros
+#     ]

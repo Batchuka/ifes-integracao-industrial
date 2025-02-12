@@ -7,23 +7,21 @@ class SimuladorPlantaModbus:
     
     def __init__(self, host_ip: str, porta: int):        
         self._server = ModbusServer(host=host_ip, port=porta, no_block=True)
-        self._db: DataBank = self._server.data_bank  # Banco de dados interno do Modbus
-        self._t = 0  # Tempo da simulação (ciclo)
-        
-        # Inicializa os registradores
+        self._db: DataBank = self._server.data_bank
+        self._t = 0
         self.inicializar_registradores()
     
     def inicializar_registradores(self):
-        """Inicializa os valores padrão das variáveis Modbus."""
         self._db.set_holding_registers(1000, [1050])  # Temperatura da Câmara (°C)
         self._db.set_holding_registers(1001, [18])    # Pressão do Vapor (bar)
-        self._db.set_holding_registers(1002, [1900])  # Fluxo de Gases Inertes (m³/h)
-        self._db.set_holding_registers(1003, [1200])  # Velocidade do Blower (RPM)
-        self._db.set_holding_registers(1004, [1])     # Nível de Carga (0, 1 ou 2)
+        self._db.set_holding_registers(1002, [650])   # Fluxo de Gás A (m³/h)
+        self._db.set_holding_registers(1003, [600])   # Fluxo de Gás B (m³/h)
+        self._db.set_holding_registers(1004, [650])   # Fluxo de Gás C (m³/h)
+        self._db.set_holding_registers(1005, [1200])  # Velocidade do Blower (RPM)
+        self._db.set_holding_registers(1006, [1])     # Nível de Carga (0, 1 ou 2)
         self._db.set_coils(2000, [False])             # Sinal de alerta do Blower (False = ok, True = problema)
 
     def atualizar_simulacao(self):
-        """Atualiza variáveis para simular um comportamento cíclico e suave."""
         while True:
             self._t += 1  # Avança o tempo da simulação
             
@@ -35,17 +33,21 @@ class SimuladorPlantaModbus:
             pressao_vapor = 19 + 2 * math.sin(self._t / 40)
             self._db.set_holding_registers(1001, [int(pressao_vapor)])
 
-            # Fluxo de Gases Inertes (muda levemente entre 1750 e 1950 m³/h)
-            gases_inertes = 1850 + 100 * math.sin(self._t / 25)
-            self._db.set_holding_registers(1002, [int(gases_inertes)])
+            # Fluxo de Gases Inertes (Gás A, B e C)
+            gas_a = 600 + 80 * math.sin(self._t / 25)
+            gas_b = 600 + 60 * math.sin(self._t / 20)
+            gas_c = 600 + 90 * math.sin(self._t / 22)
+            self._db.set_holding_registers(1002, [int(gas_a)])
+            self._db.set_holding_registers(1003, [int(gas_b)])
+            self._db.set_holding_registers(1004, [int(gas_c)])
 
             # Velocidade do Blower (flutua entre 950 e 1350 RPM)
-            velocidade_blower = 1150 + 200 * math.sin(self._t / 35)
-            self._db.set_holding_registers(1003, [int(velocidade_blower)])
+            velocidade_blower = 1250 + 150 * math.sin(self._t / 35)
+            self._db.set_holding_registers(1005, [int(velocidade_blower)])
 
             # Se velocidade do blower cair abaixo de 1000, aciona sinal de alerta
-            sinal_alerta = velocidade_blower < 1000
-            self._db.set_coils(2000, [sinal_alerta])
+            alerta_blower = velocidade_blower < 1000
+            self._db.set_coils(2000, [alerta_blower])
 
             # Nível de Carga na Câmara
             probabilidade = random.random()
@@ -55,21 +57,21 @@ class SimuladorPlantaModbus:
                 nivel_carga = 1
             else:  # 15% das vezes, nível 2
                 nivel_carga = 2
-            self._db.set_holding_registers(1004, [nivel_carga])
+            self._db.set_holding_registers(1006, [nivel_carga])
 
             # Log da simulação
             print(
                 f"Temp: {int(temp_camara)}°C | Pressão: {int(pressao_vapor)} bar | "
-                f"Gases: {int(gases_inertes)} m³/h | Blower: {int(velocidade_blower)} RPM | "
-                f"Nível de Carga: {nivel_carga} | Alerta Blower: {sinal_alerta}"
+                f"Gás A: {int(gas_a)} | Gás B: {int(gas_b)} | Gás C: {int(gas_c)} | "
+                f"Blower: {int(velocidade_blower)} RPM | Nível: {nivel_carga} | "
+                f"Alerta Blower: {alerta_blower}"
             )
 
-            time.sleep(2)  # Atualiza a cada 2 segundos
+            time.sleep(5)  # "Tempo de Varredura" de 5 segundos no CLP
 
     def run(self):
-        """Inicia o servidor Modbus e mantém a simulação ativa."""
         self._server.start()
-        print('\n🔄 Simulador Modbus em Execução...')
+        print('\nSimulador Modbus em Execução...')
         self.atualizar_simulacao()
 
 

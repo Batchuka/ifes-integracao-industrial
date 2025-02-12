@@ -1,49 +1,25 @@
-from datetime import datetime
-from typing import Optional
 from pydantic import BaseModel
+from datetime import datetime
 
-class DataSourceBase(BaseModel):
-    nome: str
-    tipo: str  # Exemplo: "modbus_tcp"
-    host: str
-    porta: int
-
-class DataPointBase(BaseModel):
-    datasource_id: int
-    nome: str
-    endereco: int  # O endereço do registrador Modbus
-    unidade: Optional[str] = None  # Exemplo: "°C", "%", "bar"
-
-class RegistroBase(BaseModel):
-    datapoint_id: int
-    valor: float
+class HistoricoBase(BaseModel):
     timestamp: datetime
 
-class DataSourceCreate(DataSourceBase):
-    pass
+class TemperaturaCamaraResponse(HistoricoBase):
+    temperatura_camara: int
 
-class DataSource(DataSourceBase):
-    id: int
-    criado_em: datetime
+class PressaoVaporResponse(HistoricoBase):
+    pressao_vapor: int
 
-    class Config:
-        orm_mode = True  # Permite integração com SQLAlchemy
+class FluxoGasesResponse(HistoricoBase):
+    fluxo_gas_a: int
+    fluxo_gas_b: int
+    fluxo_gas_c: int
 
-class DataPointCreate(DataPointBase):
-    pass
+class VelocidadeBlowerResponse(HistoricoBase):
+    velocidade_blower: int
 
-class DataPoint(DataPointBase):
-    id: int
-    criado_em: datetime
+class NivelCargaResponse(HistoricoBase):
+    nivel_carga: int
 
-    class Config:
-        orm_mode = True
-
-class RegistroCreate(RegistroBase):
-    pass
-
-class Registro(RegistroBase):
-    id: int
-
-    class Config:
-        orm_mode = True
+class AlertaBlowerResponse(HistoricoBase):
+    alerta_blower: bool

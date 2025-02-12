@@ -1,52 +1,80 @@
-from datetime import datetime
-from sqlalchemy import create_engine, Column, Integer, String, ForeignKey, Float, DateTime
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import relationship, sessionmaker
+import sqlite3
+import os
+from datetime import datetime, timedelta
 
-DATABASE_URL = "sqlite:///./modbus_data.db"
-engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-Base = declarative_base()
+class BancoDeDados:
+    _instance = None
 
-class DataSource(Base):
-    __tablename__ = "datasources"
+    def __new__(cls, db_name="planta.db", recriar=False):
+        if cls._instance is None:
+            cls._instance = super(BancoDeDados, cls).__new__(cls)
+            cls._instance.init_db(db_name, recriar)
+        return cls._instance
 
-    id = Column(Integer, primary_key=True, index=True)
-    nome = Column(String, nullable=False)
-    tipo = Column(String, nullable=False)  # Exemplo: "modbus_tcp"
-    host = Column(String, nullable=False)
-    porta = Column(Integer, nullable=False)
-    criado_em = Column(DateTime, default=datetime.utcnow)
+    def init_db(self, db_name, recriar):
+        self.db_name = db_name
 
-    datapoints = relationship("DataPoint", back_populates="datasource")
+        if recriar and os.path.exists(self.db_name):
+            print("Removendo banco de dados existente...")
+            os.remove(self.db_name)
 
-
-class DataPoint(Base):
-    __tablename__ = "datapoints"
-
-    id = Column(Integer, primary_key=True, index=True)
-    datasource_id = Column(Integer, ForeignKey("datasources.id"))
-    nome = Column(String, nullable=False)
-    endereco = Column(Integer, nullable=False)  # O endereço Modbus do registrador
-    unidade = Column(String, nullable=True)  # Exemplo: "°C", "%", "bar"
-    criado_em = Column(DateTime, default=datetime.utcnow)
-
-    datasource = relationship("DataSource", back_populates="datapoints")
-    registros = relationship("Registro", back_populates="datapoint")
-
-class Registro(Base):
-    __tablename__ = "registros"
-
-    id = Column(Integer, primary_key=True, index=True)
-    datapoint_id = Column(Integer, ForeignKey("datapoints.id"))
-    valor = Column(Float, nullable=False)
-    timestamp = Column(DateTime, default=datetime.utcnow)
-
-    datapoint = relationship("DataPoint", back_populates="registros")
+        self.conn = sqlite3.connect(self.db_name, check_same_thread=False)
+        self.cursor = self.conn.cursor()
+        self.criar_tabela()
     
-def criar_banco():
-    Base.metadata.create_all(bind=engine)
-    print("Banco de dados criado com sucesso!")
+    def criar_tabela(self):
+        self.cursor.execute('''
+            CREATE TABLE IF NOT EXISTS dados_planta (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+                temperatura_camara INTEGER,
+                pressao_vapor INTEGER,
+                fluxo_gas_a INTEGER,
+                fluxo_gas_b INTEGER,
+                fluxo_gas_c INTEGER,
+                velocidade_blower INTEGER,
+                nivel_carga INTEGER,
+                alerta_blower BOOLEAN
+            )
+        ''')
+        self.conn.commit()
+    
+    def inserir_dados(self, dados):
+        self.cursor.execute('''
+            INSERT INTO dados_planta (
+                temperatura_camara, pressao_vapor, fluxo_gas_a, fluxo_gas_b, fluxo_gas_c,
+                velocidade_blower, nivel_carga, alerta_blower
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)''', dados)
+        self.conn.commit()
+    
+    def limpar_registros_antigos(self):
+        limite_tempo = datetime.now() - timedelta(minutes=60)
+        self.cursor.execute("DELETE FROM dados_planta WHERE timestamp < ?", (limite_tempo,))
+        self.conn.commit()
 
-if __name__ == "__main__":
-    criar_banco()
+    def obter_historico(self, coluna: str):
+        query = f"""
+            SELECT {coluna}, timestamp 
+            FROM dados_planta 
+            WHERE timestamp IN (
+                SELECT MAX(timestamp) 
+                FROM dados_planta 
+                GROUP BY strftime('%Y-%m-%d %H:%M', timestamp, '-0 minutes') 
+                ORDER BY timestamp DESC 
+                LIMIT 6
+            )
+            ORDER BY timestamp ASC
+        """
+        return self.cursor.execute(query).fetchall()
+
+    def fechar(self):
+        self.conn.close()
+
+# # Teste rápido
+# if __name__ == "__main__":
+#     db = BancoDeDados()
+#     dados_mock = (1090, 20, 650, 620, 670, 1300, 1, False)  # Exemplo de dados
+#     db.inserir_dados(dados_mock)
+#     db.limpar_registros_antigos()
+#     db.fechar()
+#     print("Banco de dados atualizado!")
