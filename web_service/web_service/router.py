@@ -17,7 +17,11 @@ def get_db():
 @router.get("/historico/temperatura_camara", response_model=list[TemperaturaCamaraResponse])
 def get_temperatura_camara(db: BancoDeDados = Depends(get_db)):
     registros = db.obter_historico("temperatura_camara")
-    return [TemperaturaCamaraResponse(temperatura_camara=row[0], timestamp=row[1]) for row in registros]
+    return [TemperaturaCamaraResponse(temperatura_camara=int(row[0]) if str(row[0]).isdigit() else None, 
+            timestamp=row[1]
+        ) 
+        for row in registros
+    ]
 
 @router.get("/historico/pressao_vapor", response_model=list[PressaoVaporResponse])
 def get_pressao_vapor(db: BancoDeDados = Depends(get_db)):
